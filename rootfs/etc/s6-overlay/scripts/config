@@ -22,6 +22,19 @@ RUTORRENT_AUTHBASIC_STRING=${RUTORRENT_AUTHBASIC_STRING:-ruTorrent restricted ac
 WEBDAV_AUTHBASIC_STRING=${WEBDAV_AUTHBASIC_STRING:-WebDAV restricted access}
 
 RT_LOG_LEVEL=${RT_LOG_LEVEL:-info}
+# rTorrent >= 0.16.26: log.add_output takes group names (errors, events,
+# debug_trace, *_events, ...), not the old level names; map them for
+# backward compatibility and let raw group names pass through.
+case "$RT_LOG_LEVEL" in
+  critical|error|warn) RT_LOG_GROUPS="errors" ;;
+  notice|info)         RT_LOG_GROUPS="errors events" ;;
+  debug)               RT_LOG_GROUPS="errors events debug_trace" ;;
+  *)                   RT_LOG_GROUPS="$RT_LOG_LEVEL" ;;
+esac
+RT_LOG_OUTPUTS=""
+for rt_log_group in $RT_LOG_GROUPS; do
+  RT_LOG_OUTPUTS="${RT_LOG_OUTPUTS}log.add_output = \"${rt_log_group}\",\"log\"\n"
+done
 RT_LOG_EXECUTE=${RT_LOG_EXECUTE:-false}
 RT_LOG_XMLRPC=${RT_LOG_XMLRPC:-false}
 RT_SESSION_SAVE_SECONDS=${RT_SESSION_SAVE_SECONDS:-3600}
@@ -184,7 +197,7 @@ fi
 
 # rTorrent local config
 echo "Checking rTorrent local configuration..."
-sed -e "s!@RT_LOG_LEVEL@!$RT_LOG_LEVEL!g" \
+sed -e "s!@RT_LOG_OUTPUTS@!$RT_LOG_OUTPUTS!g" \
   -e "s!@RT_DHT_PORT@!$RT_DHT_PORT!g" \
   -e "s!@RT_INC_PORT@!$RT_INC_PORT!g" \
   -e "s!@XMLRPC_SIZE_LIMIT@!$XMLRPC_SIZE_LIMIT!g" \
