@@ -64,7 +64,7 @@ system.files.session.fdatasync.set = @RT_SESSION_FDATASYNC@
 # Logging
 ## groups = errors events debug_trace connection_* dht_* peer_* rpc_* storage_* tracker_* torrent_* ui_*
 ## RT_LOG_LEVEL accepts old level names (critical..debug) mapped to groups, or raw group names
-log.open_file = "log",(cat,(cfg.logs),"rtorrent.log")
+log.open_file.flush = "log",(cat,(cfg.logs),"rtorrent.log")
 @RT_LOG_OUTPUTS@
 log.add_output = "rpc_events","log"
 #log.execute = (cat,(cfg.logs),"execute.log")
